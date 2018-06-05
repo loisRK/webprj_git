@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN"
+"http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+
+<mapper namespace="com.iot.pf.dao.AttachmentDao">
+
+	<insert id="insert" parameterType="Attachment">
+		INSERT INTO iot.attachment
+				(attach_doc_type,
+				attach_doc_seq,
+				filename,
+				fake_name,
+				file_size,
+				content_type,
+				create_date)
+		VALUES(#{attachDocType},
+			   #{attachDocSeq},
+			   #{filename},
+			   #{fakeName},
+			   #{fileSize},
+			   #{contentType},
+			   NOW()
+			  )
+	</insert>
+	
+	<select id="getAttachment" resultType="Attachment">
+	SELECT *
+	FROM iot.attachment
+	WHERE attach_doc_type = #{0}	<!-- 첫번째 매개변수 -->
+	AND attach_doc_seq = #{1}	<!-- 두번째 매개변수 -->
+	</select>
+	
+	<select id="getOneAttach" resultType="Attachment">
+	SELECT *
+	FROM iot.attachment
+	WHERE attach_seq = #{seq}
+	</select>
+	
+	<delete id="deleteAtt" parameterType="int">
+	DELETE FROM iot.attachment
+	WHERE attach_seq = #{seq}
+	</delete>
+	
+	<select id="countAtt" parameterType="int" resultType="int">
+	SELECT count(*) FROM iot.attachment
+	WHERE attach_doc_seq = #{postNum}
+	</select>
+
+</mapper>

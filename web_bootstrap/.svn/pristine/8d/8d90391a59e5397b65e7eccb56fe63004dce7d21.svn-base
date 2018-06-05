@@ -1,0 +1,249 @@
+<%@ page language="java" contentType="text/html; charset=EUC-KR"
+	pageEncoding="EUC-KR"%>
+<%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+
+<!--STYLESHEET-->
+<!--=================================================-->
+
+<!--Unite Gallery [ OPTIONAL ]-->
+<link
+	href="<c:url value='/resources/plugins/unitegallery/css/unitegallery.css'/> "
+	rel="stylesheet">
+
+<!--JAVASCRIPT-->
+<!--=================================================-->
+
+<!--Unite Gallery [ OPTIONAL ]-->
+<script
+	src="<c:url value='/resources/plugins/unitegallery/js/unitegallery.js'/> "></script>
+<script
+	src="<c:url value='/resources/plugins/unitegallery/themes/tiles/ug-theme-tiles.js'/> "></script>
+
+<!--Dropzone [ OPTIONAL ]-->
+<script
+	src="<c:url value='/resources/plugins/dropzone/dropzone.min.js'/>"></script>
+
+<!--Form File Upload [ SAMPLE ]-->
+<script src="<c:url value='/resources/js/demo/form-file-upload.js'/>"></script>
+
+<!--Custom script [ DEMONSTRATION ]-->
+<!--===================================================-->
+<script type="text/javascript">
+
+	//첨부파일 업로드 결과 저장하는 배열
+	var photos = [];
+
+	$(document).ready(function() {
+		
+		// 앨범 리스팅
+		$.ajax({
+			url: '<c:url value="/albumList.do"/>',
+			success : function (data, textStatus, XMLHttpRequest) {
+				console.log(data);
+				/*
+				<a href="#"> 
+					<img alt="The winding road"
+						src="<c:url value='/resources/img/gallery/thumbs/tile1.jpg'/> "
+						data-image="<c:url value='/resources/img/gallery/big/tile1.jpg'/> "
+						data-description="The winding road description"
+						style="display: none">
+				</a> 
+				*/
+// 				src:ctx+'/gallery/'+image.seq+'.do'
+				// $('<tag').  -> <tag>생성
+				// attr(): 설정, append(): 포함
+				// src: 파라미터 isThumb추가 -> y: 앨범게시판리스트보여지는거, N: 선택해서 보여지는 큰 사진
+				$.each(data, function(idx, img){
+					var image = $('<img>').attr({'alt' : img.pFileName, 
+												 src : ctx+'/getFullPic.do?id='+img.pSeq, 
+// 												'data-image' : ctx+'/thumn/'+img.pSeq+'.do', 
+												'data-image' : ctx+'/getFullPic.do?id='+img.pSeq, 
+												'data-description' : "PhotoAlbum Test", 
+												'style' : "display : none"});
+					var a = $('<a>').attr({href:'#'}).append(image);
+					$('#demo-gallery').append(a);
+				});
+				
+				$("#demo-gallery").unitegallery({
+					tiles_type : "nested"
+				});
+			},
+			error : function (XMLHttpRequest, textStatus, errorThrown) {
+				bootbox.alert(XMLHttpRequest.responseText);
+			}
+		});
+	});
+
+	function btnPost() {
+		// login
+		$.ajax({
+			url: '<c:url value="/goPost.do"/>',
+			success: function(data, textStatus, XMLHttpRequest){
+				if(data.code == 'login'){
+					 
+					$.ajax({
+			               url : '<c:url value="/showPostingArea.do"/>',
+			               success : function(data, textStatus, XMLHttpRequest) {
+			                      // <div> 태그 만들고 post.jsp 내용을 추가(append)
+			                      var div = $('<div>').append(data);
+			                      
+			                      var dialog = bootbox.dialog({
+			                            title : 'Drop your photos. (Maximum 5 photos are available.)',
+			                            message : div,
+			                            buttons : {
+			                                   cancel : {
+			                                          label : "Cancel",
+			                                          className : 'btn-danger',
+			                                          callback : function() {
+			                                                movePage(null, '/showAlbum.do');
+			                                          }
+			                                   },
+			                                   ok : {
+			                                          label : "Upload",
+			                                          className : 'btn-info',
+			                                          callback : function() {
+			                                                var param = {};
+			                                                param.album = photos;
+			                                                param = JSON.stringify(param);
+			                                                console.log(param);
+			                                                
+			                                                $.ajax({
+			                                                       url: '<c:url value="/postPhoto.do"/>',
+			                                                       type:'POST',
+			                                                       data : param,
+			                                                       dataType:"json",       // 파라미터를 json으로 했기 때문에 data type json으로
+			                                                       contentType:"application/json",
+			                                                       mimeType:"application/json",
+			                                                       success : function (data, textStatus, XMLHttpRequest) {
+			                                                              bootbox.alert(data.msg);
+			                                                              if(data.code == "ok"){    // 로그인 한 후 사진등록 버튼 눌렀을 때
+			                                                                     movePage(null, '/showAlbum.do');
+			                                                              }
+			                                                              else if(data.code == "no"){     // 로그인 안한상태에서 글쓰기 버튼 눌렀을 때
+			                                                                     movePage(null, '/error.do', {'nextLocation':"/goLogin.do"});
+			                                                              }
+			                                                       },
+			                                                       error : function (XMLHttpRequest, textStatus, errorThrown) {
+			                                                              bootbox.alert(XMLHttpRequest.responseText);
+			                                                       }
+			                                                });
+			                                                
+			                                          }
+			                                   }
+			                            }
+			                      });	//	bootbox.dialog end
+			                      dialog.init(function() {
+			                            initDropzone()
+			                      });
+			               },	// success end
+			               error : function(XMLHttpRequest, textStatus, errorThrown) {
+			                      modal(XMLHttpRequest.responseText);
+			               }
+			        });  // ajax edn
+					
+				} // if end
+				else if(data.code == 'nLogin'){
+					bootbox.alert("Login First", function(){
+						window.location.href = "/wpf/goLogin.do";
+					})
+				}	// else if end
+				
+			},	// success end
+			error: function(XMLHttpRequest, textStatus, errorThrown) {
+                modal(XMLHttpRequest.responseText);
+            }	// error end
+		})
+		
+  }
+	
+	function initDropzone(){
+		// DROPZONE.JS
+		// =================================================================
+		// Require Dropzone
+		// http://www.dropzonejs.com/
+		// =================================================================
+		$('#demo-dropzone').dropzone({
+			url : '<c:url value="/photoUpload.do"/>',
+			//autoProcessQueue: false,
+			uploadMultiple : true,
+			maxFilesize : 10, // MB
+			addRemoveLinks : true,
+			parallelUploads : 10,
+			maxFiles : 10,
+			init : function() {
+				var myDropzone = this;
+				myDropzone.on('maxfilesexceeded', function(file) {
+					this.removeAllFiles();
+					this.addFile(file);
+					//  Here's the change from enyo's tutorial...
+					//  $("#submit-all").click(function (e) {
+					//  e.preventDefault();
+					//  e.stopPropagation();
+					//  myDropzone.processQueue();
+					// }
+					//
+				});
+				myDropzone.on("addedfile", function(file) {
+				});
+				// remove 누르면 removdfile
+				myDropzone.on("removedfile", function(file) {
+					// 삭제한 파일을 배열에서 찾아 배열을 재구성한다.
+					photos = $.grep(photos, function(e) {
+						return e.filename != file.name;
+					});
+				});
+				// 첨부파일이 임시 폴더에 저장이 되면 complete
+				myDropzone.on("complete", function(result) {
+					// {attachSeq: 0, attachDocType: "free", attachDocSeq: 0, filename: "SQL.Salaries.xml", fakeName: "0d52fc09-a55f-40f7-b045-1def00c93c10", …}
+					photos = $.parseJSON(result.xhr.response);
+					console.log(photos);
+				});
+			}
+		});
+	}
+</script>
+
+
+
+<!--CONTENT CONTAINER-->
+<!--===================================================-->
+<div id="page-head">
+
+	<!--Page Title-->
+	<!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
+	<div id="page-title">
+		<h1 class="page-header text-overflow">Album</h1>
+	</div>
+	<!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
+	<!--End page title-->
+
+
+	<!--Breadcrumb-->
+	<!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
+	<ol class="breadcrumb">
+		<li><a href="/wpf/home.do"><i class="demo-pli-home"></i></a></li>
+		<li>Gallery</li>
+		<li class="active">Album</li>
+	</ol>
+	<!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
+	<!--End breadcrumb-->
+
+</div>
+
+<!--Page content-->
+<!--===================================================-->
+<div id="page-content">
+
+	<div class="panel">
+		<div class="pad-all">
+			<div style="padding-bottom: 5px;" align="right">
+				<button class="btn btn-purple btn-rounded" type="button"
+					onclick="btnPost()">
+					<i class="icon-lg pli-old-camera"></i> Post
+				</button>
+			</div>
+			<div id="demo-gallery" style="display: none;"></div>
+		</div>
+	</div>
+
+</div>

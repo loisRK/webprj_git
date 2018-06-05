@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN"
+"http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+
+<mapper namespace="com.iot.pf.dao.UserDao">
+	<!-- resultType은 반드시 있어야 함 -->
+	<select id="list" parameterType="HashMap" resultType="User">
+		SELECT seq,
+		user_id AS userId,
+		user_name AS userName,
+		nickname,
+		email,
+		is_admin AS isAdmin,
+		create_date AS createDate
+		FROM (
+		SELECT seq,
+		user_id,
+		user_name,
+		nickname,
+		email,
+		is_admin,
+		date_format(create_date, '%Y-%m-%d %H:%i:%s') as create_date
+		FROM iot.user
+		WHERE 1=1
+		<if test="search != null and search != ''">
+			AND ( user_id LIKE CONCAT('%', #{search}, '%') OR user_name LIKE
+			CONCAT('%', #{search}, '%') )
+		</if>
+		<if
+			test="(searchType != null and searchType == 'userId') and searchText != ''">
+			AND user_id LIKE CONCAT('%', #{searchText}, '%')
+		</if>
+		<if
+			test="(searchType != null and searchType == 'userName') and searchText != ''">
+			AND user_name LIKE CONCAT('%', #{searchText}, '%')
+		</if>
+		<if
+			test="(searchType != null and searchType == 'nickname') and searchText != ''">
+			AND nickname LIKE CONCAT('%', #{searchText}, '%')
+		</if>
+		) A
+		<if
+			test="sort != null and sort != '' and order != null and order != ''">
+			ORDER BY ${sort} ${order}
+		</if>
+		<if
+			test="start != null and start != '' and rows != null and rows != ''">
+			LIMIT ${start}, ${rows}
+		</if>
+	</select>
+
+	<select id="chkId" parameterType="String" resultType="int">
+		SELECT count(*) FROM iot.user
+		WHERE user_id = #{userId}
+	</select>
+
+	<select id="getUserById" parameterType="String"
+		resultType="User">
+		SELECT * FROM iot.user
+		WHERE user_id = #{userId}
+	</select>
+
+	<select id="getUserBySeq" parameterType="int" resultType="User">
+		SELECT * FROM iot.user
+		WHERE seq = #{seq}
+	</select>
+
+	<select id="getEncText" parameterType="String"
+		resultType="string">
+		SELECT sha2(md5(#{userPw}), 256)
+	</select>
+
+	<select id="totalCount" resultType="int">
+		SELECT count(*) FROM iot.user
+		WHERE 1=1
+		<if test="search != null and search != ''">
+			AND ( user_id LIKE CONCAT('%', #{search}, '%') OR user_name LIKE
+			CONCAT('%', #{search}, '%') )
+		</if>
+		<if
+			test="(searchType != null and searchType == 'userId') and searchText != ''">
+			AND user_id LIKE CONCAT('%', #{searchText}, '%')
+		</if>
+		<if
+			test="(searchType != null and searchType == 'userName') and searchText != ''">
+			AND user_name LIKE CONCAT('%', #{searchText}, '%')
+		</if>
+		<if
+			test="(searchType != null and searchType == 'nickname') and searchText != ''">
+			AND nickname LIKE CONCAT('%', #{searchText}, '%')
+		</if>
+	</select>
+
+	<insert id="join" parameterType="User">
+		INSERT INTO iot.user (user_name, user_id, user_pw, nickname, email, create_date, is_admin)
+		VALUES (#{userName}, #{userId}, sha2(md5(#{userPw}), 256), #{nickname}, #{email}, NOW(), '0')
+
+		<selectKey resultType="int" keyProperty="seq" order="AFTER">
+			SELECT LAST_INSERT_ID()
+		</selectKey>
+	</insert>
+
+	<update id="update" parameterType="User">
+		UPDATE iot.user
+		SET nickname = #{nickname}, email = #{email}, user_pw = sha2(md5(#{userPw}), 256)
+		WHERE user_id = #{userId}
+	</update>
+
+	<update id="editUser" parameterType="HashMap">
+		UPDATE user
+		SET seq = #{seq}
+		<if test="(name != null and name == 'userName') and value != ''">
+			, user_name = #{value}
+		</if>
+		<if test="(name != null and name == 'nickname') and value != ''">
+			, nickname = #{value}
+		</if>
+		<if test="(name != null and name == 'email') and value != ''">
+			, email = #{value}
+		</if>
+		<if test="(name != null and name == 'isAdmin') and value != ''">
+			, is_admin = #{value}
+		</if>
+		WHERE seq = #{seq}
+	</update>
+
+	<delete id="delete" parameterType="String">
+		DELETE FROM iot.user
+		WHERE user_id = #{userId}
+	</delete>
+
+</mapper>

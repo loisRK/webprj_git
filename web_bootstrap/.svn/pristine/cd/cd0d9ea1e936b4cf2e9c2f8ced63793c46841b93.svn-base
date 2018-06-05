@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN"
+"http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+
+<mapper namespace="com.iot.pf.dao.CommentDao">
+
+<insert id="insert" parameterType="Comment">
+INSERT INTO iot.comments (com_doc_type, com_doc_num, user_id, com_contents, com_date)
+VALUES (#{comDocType}, #{comDocNum}, #{userId}, #{comContents}, NOW() )
+
+<selectKey resultType="int" keyProperty="comNum" order="AFTER">
+SELECT LAST_INSERT_ID()
+</selectKey>
+</insert>
+
+<select id="commentPaging" parameterType="HashMap" resultType="Comment">
+SELECT com_num, user_id, com_contents, date_format(com_date, '%Y-%m-%d %H:%i:%s') as com_date
+ FROM iot.comments
+WHERE com_doc_num = #{postNum}
+ORDER BY com_num DESC
+LIMIT #{startArticleNo}, #{commentSize}
+</select>
+
+<select id="count" resultType="int">
+SELECT count(*) FROM iot.comments
+WHERE com_doc_num = #{postNum}
+</select>
+
+<delete id="delete" parameterType="int">
+DELETE FROM iot.comments
+WHERE com_num = #{comNum}
+</delete>
+
+<update id="updateCom" parameterType="Comment">
+UPDATE iot.comments
+SET com_contents = #{comContents}, com_date = NOW()
+WHERE com_num = #{comNum}
+</update>
+
+<select id="getOneCom" resultType="Comment">
+SELECT * FROM iot.comments
+WHERE com_num = #{comNum}
+</select>
+
+</mapper>

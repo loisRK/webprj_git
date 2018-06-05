@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN"
+"http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+
+<mapper namespace="com.iot.pf.dao.AlbumDao">
+
+<insert id="insert" parameterType="Album">
+INSERT INTO iot.album (user_id, p_file_name, p_fake_name, p_file_size, p_type, th_name, post_date)
+VALUES(#{userId}, #{pFileName}, #{pFakeName}, #{pFileSize}, #{pType}, #{thName}, NOW())
+</insert>
+
+<select id="getPhotos" resultType="Album">
+SELECT *
+FROM iot.album
+</select>
+
+<select id="getOnePhoto" resultType="Album">
+SELECT *
+FROM iot.album
+WHERE p_seq = #{pSeq}
+</select>
+
+<delete id="deletePhoto" parameterType="int">
+DELETE FROM iot.album
+WHERE p_seq = #{pSeq}
+</delete>
+
+</mapper>

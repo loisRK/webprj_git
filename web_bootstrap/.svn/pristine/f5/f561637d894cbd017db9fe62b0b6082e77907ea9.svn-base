@@ -1,0 +1,8 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<body>
+<p><font size="6px">Please confirm your email address by clicking the link below.<br/>
+A Page for resetting password will appear.<br/></p></font><br/>
+<a href='url' target='_blank'><font size="6.5px">CLICK HERE</font></a>
+</body>
+</html>
