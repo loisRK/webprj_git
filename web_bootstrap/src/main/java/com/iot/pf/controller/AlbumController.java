@@ -190,28 +190,28 @@ public class AlbumController {
 	}
 
 	// 가변 .do(jsp에서 보내주는 id값을 연결
-	@RequestMapping("/thumn/{id}.do")
-	@ResponseBody
-	public void getThumbnail(HttpServletResponse response, @PathVariable String id) {
-		logger.debug("/thumb/id.do - params: " + id);
-
-		Album a = aService.getOnePhoto(Integer.parseInt(id));
-		File imageFile = null;
-		// 이미지 파일이 저장되어 있는 경로에 있는 id(=pFakeName)을 이미지파일변수에 저장
-		imageFile = new File(thumbUploadDirectory, a.getThName());
-
-		response.setContentType(a.getpType());
-		response.setContentLength((int) a.getpFileSize());
-
-		try {
-			InputStream is = new FileInputStream(imageFile);
-			IOUtils.copy(is,  response.getOutputStream());
-			response.flushBuffer();
-			is.close();
-
-		} catch(IOException e) {
-			logger.error("Could not show picture " + id, e);
-		}
-
-	}
+//	@RequestMapping("/thumn/{id}.do")
+//	@ResponseBody
+//	public void getThumbnail(HttpServletResponse response, @PathVariable String id) {
+//		logger.debug("/thumb/id.do - params: " + id);
+//
+//		Album a = aService.getOnePhoto(Integer.parseInt(id));
+//		File imageFile = null;
+//		// 이미지 파일이 저장되어 있는 경로에 있는 id(=pFakeName)을 이미지파일변수에 저장
+//		imageFile = new File(thumbUploadDirectory, a.getThName());
+//
+//		response.setContentType(a.getpType());
+//		response.setContentLength((int) a.getpFileSize());
+//
+//		try {
+//			InputStream is = new FileInputStream(imageFile);
+//			IOUtils.copy(is,  response.getOutputStream());
+//			response.flushBuffer();
+//			is.close();
+//
+//		} catch(IOException e) {
+//			logger.error("Could not show picture " + id, e);
+//		}
+//
+//	}
 }

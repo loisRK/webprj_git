@@ -17,7 +17,7 @@
 <!--Form File Upload [ SAMPLE ]-->
 <script src="<c:url value='/resources/js/demo/form-file-upload.js'/>"></script>
 
-<!--Custom script [ DEMONSTRATION ]-->
+<!--Custom script-->
 <!--===================================================-->
 <script type="text/javascript">
 	// 첨부파일 업로드 결과 저장하는 배열

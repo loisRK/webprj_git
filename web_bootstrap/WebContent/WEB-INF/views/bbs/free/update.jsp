@@ -12,13 +12,6 @@
 	href="<c:url value='/resources/plugins/dropzone/dropzone.min.css'/> "
 	rel="stylesheet">
 
-<!--Demo [ DEMONSTRATION ]-->
-<link href="<c:url value='/resources/css/demo/nifty-demo.min.css'/>"
-	rel="stylesheet">
-
-<!--Demo script [ DEMONSTRATION ]-->
-<script src="<c:url value='/resources/js/demo/nifty-demo.js'/>"></script>
-
 <!--Summernote [ OPTIONAL ]-->
 <script
 	src="<c:url value='/resources/plugins/summernote/summernote.min.js'/>"></script>
@@ -29,7 +22,7 @@
 <!--Form File Upload [ SAMPLE ]-->
 <script src="<c:url value='/resources/js/demo/form-file-upload.js'/>"></script>
 
-<!--Custom script [ DEMONSTRATION ]-->
+<!--Custom script-->
 <!--===================================================-->
 <script type="text/javascript">
 	function noty(msg, status){
